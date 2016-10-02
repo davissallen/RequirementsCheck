@@ -1,0 +1,23 @@
+{
+  "name": "requirements_check",
+  "version": "1.0.0",
+  "description": "Help students track and plan graduation requirements",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davissallen/RequirementsCheck.git"
+  },
+  "author": "Nick Rinaldi, Davis Allen, Andy Wei",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/davissallen/RequirementsCheck/issues"
+  },
+  "homepage": "https://github.com/davissallen/RequirementsCheck#readme",
+  "dependencies": {
+    "csvtojson": "^1.0.2",
+    "mongodb": "^2.2.10"
+  }
+}
