@@ -1,57 +1,40 @@
 // module dependencies
-var mongoClient = require('mongodb').MongoClient;
-var assert = require('assert');
-var Converter = require('csvtojson').Converter;
-var converter = new Converter({});
+var dbHelper = require('./dbHelper');
 
 onStart();
 
 // mongodb connection url
 function onStart() {
-	var url = 'mongodb://localhost:27017/plans';
-
-	// connect to the server
-	mongoClient.connect(url, function(err, db) {
-		assert.equal(null, err);
-		console.log("mongodb connection successful");
-		insertClasses("./required_core.csv", db, function(result) {
-			console.log(result);
-		});
+	readRequirements(function(data) {
+		console.log(data);
 	});
 }
 
-var getRequiredClasses = function(db, callback) {
-	var collection = db.collection('required_classes');
-	collection.find({}).toArray(function(err, docs) {
-		console.log(docs);
-		callback(docs);
+// reads the requirements files and returns and object
+// containing the required classes and core read
+function readRequirements(callback) {
+	var requirements = {
+		requiredClasses: [],
+		requiredCore: []
+	};
+	// lock object to know when to issue callback
+	var lock = 2;
+
+	dbHelper.readCSV(dbHelper.requiredClasses, function(data) {
+		requirements.requiredClasses = data;
+		
+		lock--;
+		if (lock == 0) {
+			return callback(requirements);
+		}
 	});
-}
 
-var deleteRequiredClasses = function(db, callback) {
-	var collection = db.collection('required_classes');
-	collection.remove({});
-	callback();
-}
-
-var dropCollection = function(db, callback) {
-	var collection = db.collection('required_classes');
-	collection.drop();
-	callback();
-}
-
-function readCSV(fileName, callback) {
-	converter.fromFile(fileName, function(err, result) {
-		assert.equal(err, null);
-		callback(result);
+	dbHelper.readCSV(dbHelper.requiredCore, function(data) {
+		requirements.requiredCore = data;
+		
+		lock--;
+		if (lock == 0) {
+			return callback(requirements);
+		}
 	});
-}
-
-var insertClasses = function(fileName, db, callback) {
-	readCSV(fileName, function(data) {
-		var collection = db.collection('required_classes');
-		collection.insertMany(data, function(err, result) {
-			callback(result);
-		});
-	});	
 }
