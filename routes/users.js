@@ -15,6 +15,19 @@ router.get('/', function(req, res, next) {
 	});
 });
 
+// get user object matching email and password
+router.post('/retrieve', function(req, res, next) {
+	console.log(req.body);
+	var query = User.where({ 'email': req.email, 'password': req.password });
+
+	query.findOne(function(err, user) {
+		if (err) {
+			return next(err);
+		}
+		res.json(user);
+	});
+});
+
 // POST user: saves user in db
 router.post('/', function(req, res, next) {
 	var user = new User(req.body);
@@ -27,26 +40,37 @@ router.post('/', function(req, res, next) {
 	});
 });
 
+// GET User corresponding to the id given by :user
+router.get('/:user', function(req, res, next) {
+	res.json(req.user);
+});
+
 // save the user object
 router.post('/:user', function(req, res, next, id) {
-	// query for the user
-	var query = User.findById(id);
-
-	query.exec(function(err, user) {
+	req.user.save(function(err, user) {
 		if (err) {
 			return next(err);
 		}
+		res.json(req.user);
+	});
+});
+
+// preloading user object using middleware function
+router.param('user', function(req, res, next, id) {
+	var query = User.findById(id);
+
+	query.exec(function(err, user) {
+		// return callback with error
+		if (err) {
+			return next(err);
+		}
+		// create error to pass to callback
 		if (!user) {
 			return next(new Error('can\'t find user'));
 		}
-		// update the user then save it
-		user = req.user;
-		user.save(function(err, savedUser) {
-			if (err) {
-				return next(err);
-			}
-			res.json(user);
-		});
+
+		req.user = user;
+		return next();
 	});
 });
 

@@ -20,4 +20,18 @@ var PlanSchema = new mongoose.Schema({
 	years: [YearSchema]
 });
 
+PlanSchema.pre('save', function(next) {
+	if (!this.years || this.years.length == 0) {
+		this.years = [];
+		for (var i = 0; i < 4; i++) {
+			years.push({
+				fall: { classes: [] },
+				winter: { classes: [] },
+				spring: { classes: [] },
+				summer: { classes: [] }
+			});
+		}
+	}
+});
+
 mongoose.model('Plan', PlanSchema);
