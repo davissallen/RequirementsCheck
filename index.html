@@ -4,8 +4,12 @@
 	<meta charset="UTF-8"/>
 	<title>Degree Audit Report</title>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<!-- requirements.js can be removed if csv files are used instead -->
+	<script src="requirements/requirements.js"></script>
 	<script src="js/plan.js"></script>
 	<script src="js/index.js"></script>
+	<!-- styling -->
+	<link rel="stylesheet" type="text/css" href="css/index.css" />
 </head>
 
 <body>
@@ -13,6 +17,40 @@
 
 	<div id="content">
 		<div id="plan">
+			<div id="year1" class="year">
+				<div id="year1Fall" class="quarter">
+					<div>Fall</div>
+					<ul id="year1FallClassList" class="classList">
+						<li>COEN10</li>
+						<li>MATH11</li>
+						<li>CHEM11</li>
+						<li>ENGR1</li>
+					</ul>
+				</div>
+				<div id="year1Winter" class="quarter">
+					<div>Winter</div>
+					<ul id="year1WinterClassList" class="classList">
+						<li>COEN10</li>
+						<li>MATH11</li>
+						<li>CHEM11</li>
+						<li>ENGR1</li>
+					</ul>
+				</div>
+				<div id="year1Spring" class="quarter">
+					<div>Spring</div>
+					<ul id="year1SpringClassList" class="classList">
+						<li>COEN10</li>
+						<li>MATH11</li>
+						<li>CHEM11</li>
+						<li>ENGR1</li>
+					</ul>
+				</div>
+				<div id="year1Summer" class="quarter">
+					<div>Summer</div>
+					<ul id="year1SummerClassList" class="classList">
+					</ul>
+				</div>
+			</div>
 		</div>
 		<div id="requirements">
 		</div>

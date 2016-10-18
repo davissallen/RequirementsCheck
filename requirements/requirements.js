@@ -1,3 +1,4 @@
+// simple array of required classes
 var requiredClasses = [
 	'MATH11',
 	'CHEM11',
@@ -33,6 +34,7 @@ var requiredClasses = [
 	'COEN196'
 ];
 
+// simple array of required core
 var requiredCore = [
 	'CTW1',
 	'CTW2',
@@ -48,6 +50,7 @@ var requiredCore = [
 	'ELSJ'
 ];
 
+// object mapping core classes to the requirements they fulfill
 var courseCredits = {
 	'RSOC99': ['RTC2', 'ELSJ']
 };
