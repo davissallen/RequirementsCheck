@@ -1,3 +1,7 @@
+// on the web page load:
+// 1: retrieve the saved plan in the browser cookies
+// 2: load required coen classes, core classes, and their satisfied requirements
+// 3: run requirements checking algorithm against the plan object
 $(document).ready(function() {
 	var plan = new Plan();
 	getRequiredClasses();
@@ -17,4 +21,8 @@ function getRequiredClasses() {
 			console.log(error);
 		}
 	});
+}
+
+function getClassesSimple() {
+	
 }
