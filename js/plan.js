@@ -1,7 +1,15 @@
 // Quarter object holding an array of classes
+
 var Quarter = function() {
-	this.classes = [];
+	this.courses = [];
 }
+
+var QUARTER_ENUM = {
+	FALL: 'fall',
+	WINTER: 'winter',
+	SPRING: 'spring',
+	SUMMER: 'summer'
+};
 
 // Year object with four quarters
 var Year = function() {

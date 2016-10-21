@@ -1,7 +1,15 @@
+.year {
+	display: table;
+	width: 70%;
+	text-align: center;
+	margin-left: 10px;
+}
+
 ul {
 	text-align: left;
 	list-style: none;
 	padding: 0;
+	display: inline-block;
 }
 
 li {
@@ -9,11 +17,18 @@ li {
 
 .quarter {
 	display: table-cell;
-	padding: 10px 20px;
+	padding: 10px;
 }
 
-.year {
-	display: table;
-	width: 80%;
-	text-align: center;
+.btnAddCourse {
+	font-weight: bolder;
+	font-size: 1em;
+	display: inline-block;
+	padding: 0 5px;
+	border-radius: 4px;
+}
+
+.btnAddCourse:hover {
+	background-color: gray;
+	cursor: pointer;
 }

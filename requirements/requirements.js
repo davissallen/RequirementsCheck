@@ -1,5 +1,5 @@
 // simple array of required classes
-var requiredClasses = [
+var requiredCourses = [
 	'MATH11',
 	'CHEM11',
 	'COEN10',
