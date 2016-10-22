@@ -32,3 +32,8 @@ li {
 	background-color: gray;
 	cursor: pointer;
 }
+
+.dropdown {
+	position: absolute;
+	z-index: 1;
+}

@@ -57,7 +57,7 @@ function drawYear(index) {
 
 // return html string of quarter
 function drawQuarter(quarter, year) {
-	var resultHTML = '<div class="quarter">' +
+	var resultHTML = '<div id="year' + year + quarter + '" class="quarter">' +
 		'<div class="quarterHeader">' + sentenceCase(quarter) + '</div>' +
 		'<ul id="year' + year + quarter +'courselist" class="courselist">' +
 		buildCourseList(quarter, year) +
@@ -96,15 +96,64 @@ function addCourseBtnEvent(quarter, year) {
 	return function() {
 		// textbox not visible, add it, and update the variable
 		if (!txtBoxToggle) {
-			var html = '<li class="searchClass"><input type="text" name="courseName" size="4" placeholder="course"></li>';
-			$('#year' + year + quarter + 'courselist').append(html);
+			var html = '<div class="searchClass">' +
+			'<input id="txtBoxYear' + year + quarter +
+			'" type="text" size="4" placeholder="course"></div>';
+			//$('#year' + year + quarter).append(html);
+			$(html).insertAfter('#year' + year + quarter +'courselist');
+			bindFocusHandler(quarter, year);
+			bindInputHandler(quarter, year);
 			$('#btnAddCourseToYear' + year + quarter).html('-');
 			txtBoxToggle = true;
 		}
 		else {
-			$('#year' + year + quarter + 'courselist').children('.searchClass').remove();
+			$('#year' + year + quarter).children('.searchClass').remove();
 			$('#btnAddCourseToYear' + year + quarter).html('+');
 			txtBoxToggle = false;
 		}
 	}
+}
+
+function bindFocusHandler(quarter, year) {
+	$('#txtBoxYear' + year + quarter).focusin(function() {
+		var html = '<ul id="dropdownYear' + year + quarter + '" class="dropdown">' +
+			'</ul>';
+
+		var value = $('#txtBoxYear' + year + quarter).val();
+		var filteredClasses = jQuery.grep(requirements.requiredCourses,
+			function(element, index) {
+				return element.indexOf(value.toUpperCase()) >= 0;
+		});
+
+		$(html).insertAfter('#txtBoxYear' + year + quarter);
+		$('#dropdownYear' + year + quarter).html(createFilteredListItems(filteredClasses));
+		
+	});
+
+	$('#txtBoxYear' + year + quarter).focusout(function() {
+		$('#dropdownYear' + year + quarter).remove();
+	});
+}
+
+// filter the class list with the input
+function bindInputHandler(quarter, year) {
+	// on key up event, filter the class list
+	$('#txtBoxYear' + year + quarter).keyup(function() {
+		var value = $('#txtBoxYear' + year + quarter).val();
+		var filteredClasses = jQuery.grep(requirements.requiredCourses,
+			function(element, index) {
+				return element.indexOf(value.toUpperCase()) >= 0;
+		});
+		
+		$('#dropdownYear' + year + quarter).html(createFilteredListItems(filteredClasses));
+
+	});
+}
+
+function createFilteredListItems(courses) {
+	var html = '';
+	for (var i = 0; i < courses.length; i++) {
+		html += '<li>' + courses[i] + '</li>';
+	}
+	return html;
 }
