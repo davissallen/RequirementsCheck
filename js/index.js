@@ -10,7 +10,6 @@ var requirements;
 // on initial load
 $(document).ready(function() {
 	plan = new Plan();
-	console.log(plan);
 	requirements = getCoursesSimple();
 	drawInitialView();
 });
@@ -60,7 +59,7 @@ function drawQuarter(quarter, year) {
 	var resultHTML = '<div id="year' + year + quarter + '" class="quarter">' +
 		'<div class="quarterHeader">' + sentenceCase(quarter) + '</div>' +
 		'<ul id="year' + year + quarter +'courselist" class="courselist">' +
-		buildCourseList(quarter, year) +
+		buildCourseList(plan.years[year][quarter].courses, quarter, year, 'course') +
 		'</ul>' +
 		'<div><div id="btnAddCourseToYear' + year + quarter + '" class="btnAddCourse">+</div></div>' +
 		'</div>';
@@ -79,10 +78,10 @@ function sentenceCase(string) {
 }
 
 // loops through all classes in the specified quarter, generating list elements
-function buildCourseList(quarter, year) {
+function buildCourseList(courses, quarter, year, classToGive) {
 	var resultHTML = '';
-	$.each(plan.years[year][quarter].courses, function(index, course) {
-		resultHTML += '<li class="course">' + course + '</li>';
+	$.each(courses, function(index, course) {
+		resultHTML += '<li class="' + classToGive + '">' + course + '</li>';
 	});
 
 	return resultHTML;
@@ -118,20 +117,23 @@ function bindFocusHandler(quarter, year) {
 	$('#txtBoxYear' + year + quarter).focusin(function() {
 		var html = '<ul id="dropdownYear' + year + quarter + '" class="dropdown">' +
 			'</ul>';
+		$(html).insertAfter('#txtBoxYear' + year + quarter);
 
 		var value = $('#txtBoxYear' + year + quarter).val();
 		var filteredClasses = jQuery.grep(requirements.requiredCourses,
 			function(element, index) {
 				return element.indexOf(value.toUpperCase()) >= 0;
 		});
-
-		$(html).insertAfter('#txtBoxYear' + year + quarter);
-		$('#dropdownYear' + year + quarter).html(createFilteredListItems(filteredClasses));
 		
+		$('#dropdownYear' + year + quarter).html(createFilteredListItems(filteredClasses, quarter, year));
+
 	});
 
-	$('#txtBoxYear' + year + quarter).focusout(function() {
-		$('#dropdownYear' + year + quarter).remove();
+	$('body').click(function(e) {
+		var target = $(e.target);
+		if (!target.is('#txtBoxYear' + year + quarter) && !target.is('.addCourse')) {
+			$('#dropdownYear' + year + quarter).remove();
+		}
 	});
 }
 
@@ -145,15 +147,19 @@ function bindInputHandler(quarter, year) {
 				return element.indexOf(value.toUpperCase()) >= 0;
 		});
 		
-		$('#dropdownYear' + year + quarter).html(createFilteredListItems(filteredClasses));
+		createFilteredListItems(filteredClasses, quarter, year);
+		bindListItemClick();
 
 	});
 }
 
-function createFilteredListItems(courses) {
-	var html = '';
-	for (var i = 0; i < courses.length; i++) {
-		html += '<li>' + courses[i] + '</li>';
-	}
-	return html;
+function createFilteredListItems(courses, quarter, year) {
+	var html = buildCourseList(courses, quarter, year, 'addCourse');
+	$('#dropdownYear' + year + quarter).html(html);
+
+	$('.addCourse').click(function() {
+		var course = $(this).html();
+		console.log(course);
+		$('#year' + year + quarter + 'courselist').append('<li class="course">' + course + '</li>');
+	});
 }
