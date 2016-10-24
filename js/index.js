@@ -25,10 +25,17 @@ function getCoursesSimple() {
 
 // draws the initial plan on the screen
 function drawInitialView() {
+	// draw plan view
 	for (var i = 0; i < plan.years.length; i++) {
 		var html = '<div id="year' + i + '" class="year"></div>';
 		$('#plan').append(html);
 		drawYear(i);
+	}
+
+	// draw requirements view
+	for (var i = 0; i < requirements.requiredCourses.length; i++) {
+		var html = '<li>' + requirements.requiredCourses[i] + '</li>';
+		$('#CoenRequirementsRemaining').append(html);
 	}
 }
 
@@ -78,10 +85,10 @@ function sentenceCase(string) {
 }
 
 // loops through all classes in the specified quarter, generating list elements
-function buildCourseList(courses, quarter, year, classToGive) {
+function buildCourseList(courses, quarter, year, htmlClass) {
 	var resultHTML = '';
 	$.each(courses, function(index, course) {
-		resultHTML += '<li class="' + classToGive + '">' + course + '</li>';
+		resultHTML += '<li class="' + htmlClass + '">' + course + '</li>';
 	});
 
 	return resultHTML;
@@ -98,10 +105,12 @@ function addCourseBtnEvent(quarter, year) {
 			var html = '<div class="searchClass">' +
 			'<input id="txtBoxYear' + year + quarter +
 			'" type="text" size="4" placeholder="course"></div>';
-			//$('#year' + year + quarter).append(html);
 			$(html).insertAfter('#year' + year + quarter +'courselist');
+
+			// bind focus and input handlers
 			bindFocusHandler(quarter, year);
 			bindInputHandler(quarter, year);
+			// change the '+' to '-' and set the toggle
 			$('#btnAddCourseToYear' + year + quarter).html('-');
 			txtBoxToggle = true;
 		}
@@ -113,19 +122,28 @@ function addCourseBtnEvent(quarter, year) {
 	}
 }
 
+// binds the focus handler of the textBox and List of classes
 function bindFocusHandler(quarter, year) {
+	// when user clicks on the textbox
 	$('#txtBoxYear' + year + quarter).focusin(function() {
+		// list may potentially be there, remove it
+		$('#dropdownYear' + year + quarter).remove();
+		// add the list of classes
 		var html = '<ul id="dropdownYear' + year + quarter + '" class="dropdown">' +
 			'</ul>';
 		$(html).insertAfter('#txtBoxYear' + year + quarter);
 
+		// get the user input and update the dropdown list
 		var value = $('#txtBoxYear' + year + quarter).val();
 		var filteredClasses = jQuery.grep(requirements.requiredCourses,
 			function(element, index) {
 				return element.indexOf(value.toUpperCase()) >= 0;
 		});
-		
-		$('#dropdownYear' + year + quarter).html(createFilteredListItems(filteredClasses, quarter, year));
+		// update the dropdown
+		createFilteredListItems(filteredClasses, quarter, year);
+		// everytime we update the dropdown, inner html is getting set
+		// so we must bind the click handler each time
+		bindListItemClick(quarter, year);
 
 	});
 
@@ -148,18 +166,26 @@ function bindInputHandler(quarter, year) {
 		});
 		
 		createFilteredListItems(filteredClasses, quarter, year);
-		bindListItemClick();
 
+		bindListItemClick(quarter, year);
 	});
+
+	
 }
 
+// sets the html for the filtered list
 function createFilteredListItems(courses, quarter, year) {
 	var html = buildCourseList(courses, quarter, year, 'addCourse');
 	$('#dropdownYear' + year + quarter).html(html);
+}
 
+// sets the onclick listener for the filtered classes in the dropdown
+function bindListItemClick(quarter, year) {
 	$('.addCourse').click(function() {
 		var course = $(this).html();
-		console.log(course);
 		$('#year' + year + quarter + 'courselist').append('<li class="course">' + course + '</li>');
+		plan.years[year][quarter].courses.push(course);
+
+		// update sidebar requirements
 	});
 }

@@ -1,6 +1,11 @@
+#plan {
+	width: 70%;
+	display: inline-block;
+}
+
 .year {
 	display: table;
-	width: 70%;
+	width: 100%;
 	text-align: center;
 	margin-left: 10px;
 }
@@ -40,4 +45,13 @@ li {
 .dropdown {
 	position: absolute;
 	z-index: 1;
+	background-color: white;
+	border: 1px solid gray;
+}
+
+#requirements {
+	width: 18%;
+	float: right;
+	height: 80vh;
+	overflow-y: scroll;
 }
