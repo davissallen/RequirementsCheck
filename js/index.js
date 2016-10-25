@@ -218,7 +218,7 @@ function bindListItemClick(quarter, year) {
 		var course = $(this).html();
 		$('#year' + year + quarter + 'courselist').append('<li class="course">' +
 			'<div class="removeCourse">&#x2715;</div><div class="courseName">' + course + '</div></li>');
-		plan.years[year][quarter].courses.push(course);
+		plan.addCourse(course, quarter, year);
 
 		// initialize remove class event
 		// attach quarter and year data to each element for removal functionality
@@ -246,10 +246,7 @@ function removeCourse(element) {
 	// remove the list item from the ul
 	parent.remove();
 	// remove the class from the plan object
-	var index = plan.years[year][quarter].courses.indexOf(course);
-	if (index > -1) {
-		plan.years[year][quarter].courses.splice(index, 1);
-	}
+	plan.removeCourse(course, quarter, year);
 
 	// update sidebar requirements
 }

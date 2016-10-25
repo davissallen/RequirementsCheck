@@ -29,3 +29,14 @@ var Plan = function() {
 		new Year()
 	];
 }
+
+Plan.prototype.removeCourse = function(course, quarter, year) {
+	var index = this.years[year][quarter].courses.indexOf(course);
+	if (index > -1) {
+		this.years[year][quarter].courses.splice(index, 1);
+	}
+}
+
+Plan.prototype.addCourse = function(course, quarter, year) {
+	this.years[year][quarter].courses.push(course);
+}
