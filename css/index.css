@@ -1,7 +1,38 @@
-#plan {
-	width: 70%;
+/* Generic styling */
+ul {
+	text-align: left;
+	list-style: none;
+	padding: 0;
 	display: inline-block;
 }
+
+#content {
+	width: 70%;
+	float: left;
+}
+
+/* requirements sidebar styling */
+#requirements {
+	width: 20%;
+	float: right;
+	height: 80vh;
+	overflow-y: scroll;
+}
+
+#btnAddYear {
+	display: inline-block;
+	border-radius: 4px;
+	padding: 0 4px;
+	margin-left: 20px;
+	margin-top: 20px;
+}
+
+#btnAddYear:hover {
+	background-color: gray;
+	cursor: pointer;
+}
+
+/* plan styling */
 
 .year {
 	display: table;
@@ -10,19 +41,25 @@
 	margin-left: 10px;
 }
 
-ul {
-	text-align: left;
-	list-style: none;
-	padding: 0;
-	display: inline-block;
-}
-
-li {
-}
-
 .quarter {
 	display: table-cell;
 	padding: 10px;
+}
+
+.removeCourse, .courseName {
+	display: inline-block;
+}
+
+.removeCourse {
+	border-radius: 4px;
+	font-size: 0.8em;
+	padding: 0.2em;
+	margin-right: 10px;
+}
+
+.removeCourse:hover {
+	background-color: gray;
+	cursor: pointer;
 }
 
 .btnAddCourse {
@@ -47,11 +84,4 @@ li {
 	z-index: 1;
 	background-color: white;
 	border: 1px solid gray;
-}
-
-#requirements {
-	width: 18%;
-	float: right;
-	height: 80vh;
-	overflow-y: scroll;
 }

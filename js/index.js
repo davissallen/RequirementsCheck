@@ -9,9 +9,18 @@ var requirements;
 
 // on initial load
 $(document).ready(function() {
+	// load the plan from cookies if it exists
 	plan = new Plan();
+	plan.years[0].fall.courses.push('MATH11');
+	// get the requirements object
 	requirements = getCoursesSimple();
+	// draw the initial view
 	drawInitialView();
+
+	// set the add year click event functionality
+	$('#btnAddYear').click(function() {
+		addYear();
+	});
 });
 
 // get JSON object of requirements
@@ -32,6 +41,9 @@ function drawInitialView() {
 		drawYear(i);
 	}
 
+	// initialize remove course event
+	initRemoveCourseEvent();
+
 	// draw requirements view
 	for (var i = 0; i < requirements.requiredCourses.length; i++) {
 		var html = '<li>' + requirements.requiredCourses[i] + '</li>';
@@ -39,39 +51,38 @@ function drawInitialView() {
 	}
 }
 
-// returns HTML string to draw the year
+// draw a whole year by drawing quarters
 function drawYear(index) {
-	// create the html string
-	var html = '';
-	html += drawQuarter(QUARTER_ENUM.FALL, index);
-	html += drawQuarter(QUARTER_ENUM.WINTER, index);
-	html += drawQuarter(QUARTER_ENUM.SPRING, index);
-	html += drawQuarter(QUARTER_ENUM.SUMMER, index);
-	// append the html string to the corresponding year
-	$('#year' + index).append(html);
-
-	// set the add course button event for each quarter
-	$('#btnAddCourseToYear' + index + QUARTER_ENUM.FALL).click(
-		addCourseBtnEvent(QUARTER_ENUM.FALL, index));
-	$('#btnAddCourseToYear' + index + QUARTER_ENUM.WINTER).click(
-		addCourseBtnEvent(QUARTER_ENUM.WINTER, index));
-	$('#btnAddCourseToYear' + index + QUARTER_ENUM.SPRING).click(
-		addCourseBtnEvent(QUARTER_ENUM.SPRING, index));
-	$('#btnAddCourseToYear' + index + QUARTER_ENUM.SUMMER).click(
-		addCourseBtnEvent(QUARTER_ENUM.SUMMER, index));
+	drawQuarter(QUARTER_ENUM.FALL, index);
+	drawQuarter(QUARTER_ENUM.WINTER, index);
+	drawQuarter(QUARTER_ENUM.SPRING, index);
+	drawQuarter(QUARTER_ENUM.SUMMER, index);
 }
 
-// return html string of quarter
+// draws a quarter on the view for the given year and quarter
 function drawQuarter(quarter, year) {
-	var resultHTML = '<div id="year' + year + quarter + '" class="quarter">' +
+	// html string of each quarter
+	var html = '<div id="year' + year + quarter + '" class="quarter">' +
 		'<div class="quarterHeader">' + sentenceCase(quarter) + '</div>' +
 		'<ul id="year' + year + quarter +'courselist" class="courselist">' +
-		buildCourseList(plan.years[year][quarter].courses, quarter, year, 'course') +
+		createRemovableCourseList(plan.years[year][quarter].courses, quarter, year, 'course') +
 		'</ul>' +
 		'<div><div id="btnAddCourseToYear' + year + quarter + '" class="btnAddCourse">+</div></div>' +
 		'</div>';
 
-	return resultHTML;
+	// add the drawn quarter to the corresponding year
+	$('#year' + year).append(html);
+
+	// attach quarter and year data to each element for removal functionality
+	var courseElements = $('#year' + year + quarter + 'courselist > li');
+	for (var i = 0; i < courseElements.length; i++) {
+		// add year and quarter to corresponding dom element
+		jQuery.data(courseElements[i], 'year', year);
+		jQuery.data(courseElements[i], 'quarter', quarter);
+	}
+
+	// set the on click listener for adding a course
+	$('#btnAddCourseToYear' + year + quarter).click(addCourseBtnEvent(quarter, year));
 }
 
 // capitalize the first character of the string
@@ -84,6 +95,18 @@ function sentenceCase(string) {
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+// loops through all classes in the specified quarter, generating list elements with removability
+function createRemovableCourseList(courses, quarter, year, htmlClass) {
+	var resultHTML = '';
+	$.each(courses, function(index, course) {
+		resultHTML += '<li class="' + htmlClass + '">' +
+		'<div class="removeCourse">&#x2715;</div>' +
+		'<div class="courseName">' + course + '</div></li>';
+	});
+
+	return resultHTML;
+}
+
 // loops through all classes in the specified quarter, generating list elements
 function buildCourseList(courses, quarter, year, htmlClass) {
 	var resultHTML = '';
@@ -92,6 +115,13 @@ function buildCourseList(courses, quarter, year, htmlClass) {
 	});
 
 	return resultHTML;
+}
+
+// set the on click listener for removing a course
+function initRemoveCourseEvent() {
+	$('.removeCourse').click(function() {
+		removeCourse($(this));
+	});	
 }
 
 // function to fire when the add course button is pressed
@@ -107,12 +137,14 @@ function addCourseBtnEvent(quarter, year) {
 			'" type="text" size="4" placeholder="course"></div>';
 			$(html).insertAfter('#year' + year + quarter +'courselist');
 
-			// bind focus and input handlers
-			bindFocusHandler(quarter, year);
-			bindInputHandler(quarter, year);
 			// change the '+' to '-' and set the toggle
 			$('#btnAddCourseToYear' + year + quarter).html('-');
 			txtBoxToggle = true;
+
+			// bind focus handler for when user enters or exists scope
+			bindFocusHandler(quarter, year);
+			// bind input handler for when user searches for classes
+			bindInputHandler(quarter, year);
 		}
 		else {
 			$('#year' + year + quarter).children('.searchClass').remove();
@@ -124,13 +156,13 @@ function addCourseBtnEvent(quarter, year) {
 
 // binds the focus handler of the textBox and List of classes
 function bindFocusHandler(quarter, year) {
+	var courseListVisible = false;
 	// when user clicks on the textbox
 	$('#txtBoxYear' + year + quarter).focusin(function() {
 		// list may potentially be there, remove it
 		$('#dropdownYear' + year + quarter).remove();
 		// add the list of classes
-		var html = '<ul id="dropdownYear' + year + quarter + '" class="dropdown">' +
-			'</ul>';
+		var html = '<ul id="dropdownYear' + year + quarter + '" class="dropdown"></ul>';
 		$(html).insertAfter('#txtBoxYear' + year + quarter);
 
 		// get the user input and update the dropdown list
@@ -141,16 +173,19 @@ function bindFocusHandler(quarter, year) {
 		});
 		// update the dropdown
 		createFilteredListItems(filteredClasses, quarter, year);
-		// everytime we update the dropdown, inner html is getting set
-		// so we must bind the click handler each time
-		bindListItemClick(quarter, year);
+
+		courseListVisible = true;
 
 	});
 
-	$('body').click(function(e) {
+	// when the user clicks out of the scope of the textbox and dropdown list
+	$('html').click(function(e) {
 		var target = $(e.target);
-		if (!target.is('#txtBoxYear' + year + quarter) && !target.is('.addCourse')) {
+		// remove the dropdown list if it's visible and the user clicks out of the seach scope
+		if (courseListVisible &&
+			(!target.is('#txtBoxYear' + year + quarter) && !target.is('.addCourse'))) {
 			$('#dropdownYear' + year + quarter).remove();
+			courseListVisible = false;
 		}
 	});
 }
@@ -164,28 +199,65 @@ function bindInputHandler(quarter, year) {
 			function(element, index) {
 				return element.indexOf(value.toUpperCase()) >= 0;
 		});
-		
+		// filter the class list
 		createFilteredListItems(filteredClasses, quarter, year);
-
-		bindListItemClick(quarter, year);
 	});
-
-	
 }
 
 // sets the html for the filtered list
 function createFilteredListItems(courses, quarter, year) {
 	var html = buildCourseList(courses, quarter, year, 'addCourse');
 	$('#dropdownYear' + year + quarter).html(html);
+	// bind the onclick listeners for the list item
+	bindListItemClick(quarter, year);
 }
 
 // sets the onclick listener for the filtered classes in the dropdown
 function bindListItemClick(quarter, year) {
 	$('.addCourse').click(function() {
 		var course = $(this).html();
-		$('#year' + year + quarter + 'courselist').append('<li class="course">' + course + '</li>');
+		$('#year' + year + quarter + 'courselist').append('<li class="course">' +
+			'<div class="removeCourse">&#x2715;</div><div class="courseName">' + course + '</div></li>');
 		plan.years[year][quarter].courses.push(course);
+
+		// initialize remove class event
+		// attach quarter and year data to each element for removal functionality
+		var courseElements = $('#year' + year + quarter + 'courselist > li');
+		for (var i = 0; i < courseElements.length; i++) {
+			jQuery.data(courseElements[i], 'year', year);
+			jQuery.data(courseElements[i], 'quarter', quarter);
+		}
+		$('#year' + year + quarter + 'courselist > li > .removeCourse').unbind('click');
+		$('#year' + year + quarter + 'courselist > li > .removeCourse').click(function() {
+			removeCourse($(this));
+		});
 
 		// update sidebar requirements
 	});
+}
+
+function removeCourse(element) {
+	// get the course name
+	var parent = element.parent();
+	var course = parent.children('.courseName').html();
+	var year = jQuery.data(parent[0], 'year');
+	var quarter = jQuery.data(parent[0], 'quarter');
+
+	// remove the list item from the ul
+	parent.remove();
+	// remove the class from the plan object
+	var index = plan.years[year][quarter].courses.indexOf(course);
+	if (index > -1) {
+		plan.years[year][quarter].courses.splice(index, 1);
+	}
+
+	// update sidebar requirements
+}
+
+function addYear() {
+	var index = plan.years.length;
+	var html = '<div id="year' + index + '" class="year"></div>';
+	$('#plan').append(html);
+	plan.years.push(new Year());
+	drawYear(index);
 }
