@@ -12,6 +12,8 @@ $(document).ready(function() {
 	// load the plan from cookies if it exists
 	plan = new Plan();
 	plan.years[0].fall.courses.push('MATH11');
+	plan.years[0].fall.courses.push('RSOC99');
+
 	// get the requirements object
 	requirements = getCoursesSimple();
 	// draw the initial view
@@ -21,13 +23,17 @@ $(document).ready(function() {
 	$('#btnAddYear').click(function() {
 		addYear();
 	});
+
+	// set the remove last year click event functionality
+	$('#btnRemoveYear').click(function() {
+		removeYear();
+	});
 });
 
 // get JSON object of requirements
 function getCoursesSimple() {
 	return {
-		'requiredCourses': requiredCourses,
-		'requiredCore': requiredCore,
+		'requiredCredits': requiredCredits,
 		'courseCredits': courseCredits
 	};
 }
@@ -45,10 +51,17 @@ function drawInitialView() {
 	initRemoveCourseEvent();
 
 	// draw requirements view
-	for (var i = 0; i < requirements.requiredCourses.length; i++) {
-		var html = '<li>' + requirements.requiredCourses[i] + '</li>';
-		$('#CoenRequirementsRemaining').append(html);
+	for (var i = 0; i < requirements.requiredCredits.length; i++) {
+		var html = '<li class="requirementsLI"><div class="credit">' +
+			requirements.requiredCredits[i] + '</div>' +
+			'<div class="fulfilledBy"></div></li>';
+
+		$('#requiredCreditsList').append(html);
 	}
+
+	// check off the requirements fulfilled
+	checkRequirements();
+	
 }
 
 // draw a whole year by drawing quarters
@@ -134,7 +147,7 @@ function addCourseBtnEvent(quarter, year) {
 		if (!txtBoxToggle) {
 			var html = '<div class="searchClass">' +
 			'<input id="txtBoxYear' + year + quarter +
-			'" type="text" size="4" placeholder="course"></div>';
+			'" type="text" size="5" placeholder="course"></div>';
 			$(html).insertAfter('#year' + year + quarter +'courselist');
 
 			// change the '+' to '-' and set the toggle
@@ -167,10 +180,7 @@ function bindFocusHandler(quarter, year) {
 
 		// get the user input and update the dropdown list
 		var value = $('#txtBoxYear' + year + quarter).val();
-		var filteredClasses = jQuery.grep(requirements.requiredCourses,
-			function(element, index) {
-				return element.indexOf(value.toUpperCase()) >= 0;
-		});
+		var filteredClasses = filterCourses(value);
 		// update the dropdown
 		createFilteredListItems(filteredClasses, quarter, year);
 
@@ -193,15 +203,28 @@ function bindFocusHandler(quarter, year) {
 // filter the class list with the input
 function bindInputHandler(quarter, year) {
 	// on key up event, filter the class list
-	$('#txtBoxYear' + year + quarter).keyup(function() {
+	$('#txtBoxYear' + year + quarter).keypress(function(e) {
 		var value = $('#txtBoxYear' + year + quarter).val();
-		var filteredClasses = jQuery.grep(requirements.requiredCourses,
-			function(element, index) {
-				return element.indexOf(value.toUpperCase()) >= 0;
-		});
+
+		// add class on enter key
+		if (e.which == 13) {
+			console.log('enter');
+		}
+
+		// on another key press, filter the dropdown
+		var filteredClasses = filterCourses(value);
 		// filter the class list
 		createFilteredListItems(filteredClasses, quarter, year);
 	});
+}
+
+function filterCourses(substring) {
+	var filteredCourses = jQuery.grep(Object.keys(requirements.courseCredits),
+		function(element, index) {
+			return element.indexOf(substring.toUpperCase()) >= 0;
+	});
+
+	return filteredCourses;
 }
 
 // sets the html for the filtered list
@@ -216,26 +239,32 @@ function createFilteredListItems(courses, quarter, year) {
 function bindListItemClick(quarter, year) {
 	$('.addCourse').click(function() {
 		var course = $(this).html();
-		$('#year' + year + quarter + 'courselist').append('<li class="course">' +
-			'<div class="removeCourse">&#x2715;</div><div class="courseName">' + course + '</div></li>');
-		plan.addCourse(course, quarter, year);
-
-		// initialize remove class event
-		// attach quarter and year data to each element for removal functionality
-		var courseElements = $('#year' + year + quarter + 'courselist > li');
-		for (var i = 0; i < courseElements.length; i++) {
-			jQuery.data(courseElements[i], 'year', year);
-			jQuery.data(courseElements[i], 'quarter', quarter);
-		}
-		$('#year' + year + quarter + 'courselist > li > .removeCourse').unbind('click');
-		$('#year' + year + quarter + 'courselist > li > .removeCourse').click(function() {
-			removeCourse($(this));
-		});
-
-		// update sidebar requirements
+		addCourse(quarter, year, course);
 	});
 }
 
+// add course event
+function addCourse(quarter, year, course) {
+	$('#year' + year + quarter + 'courselist').append('<li class="course">' +
+			'<div class="removeCourse">&#x2715;</div><div class="courseName">' + course + '</div></li>');
+	plan.addCourse(course, quarter, year);
+
+	// initialize remove class event
+	// attach quarter and year data to each element for removal functionality
+	var courseElements = $('#year' + year + quarter + 'courselist > li');
+	for (var i = 0; i < courseElements.length; i++) {
+		jQuery.data(courseElements[i], 'year', year);
+		jQuery.data(courseElements[i], 'quarter', quarter);
+	}
+	$('#year' + year + quarter + 'courselist > li > .removeCourse').unbind('click');
+	$('#year' + year + quarter + 'courselist > li > .removeCourse').click(function() {
+		removeCourse($(this));
+	});
+
+	// update sidebar requirements
+}
+
+// removes a course from the plan
 function removeCourse(element) {
 	// get the course name
 	var parent = element.parent();
@@ -251,10 +280,64 @@ function removeCourse(element) {
 	// update sidebar requirements
 }
 
+// adds a year to the plan and layout
 function addYear() {
 	var index = plan.years.length;
 	var html = '<div id="year' + index + '" class="year"></div>';
 	$('#plan').append(html);
 	plan.years.push(new Year());
 	drawYear(index);
+}
+
+// removes the last year from the plan
+function removeYear() {
+	var index = plan.years.length - 1;
+	$('#year' + index).remove();
+	plan.years.pop();
+}
+
+
+
+
+
+function checkRequirements() {
+	for (var i = 0; i < plan.years.length; i++) {
+
+		var quarters = $('#year' + i).children();
+
+
+		for (var j = 0; j < quarters.length; j++) {
+
+			var courses = $(quarters[j]).children('.courselist').children();
+
+
+			for (var k = 0; k < courses.length; k++) {
+
+				var course = $(courses[k]).children('.courseName');
+				var credits = requirements.courseCredits[course.html()];
+				if (credits === undefined || credits.length == 0) {
+					console.log(course.html() + ' can be used for educational enrichment');
+					course.parent().css('background-color', 'yellow');
+				}
+				else {
+					checkOffRequiredCredit(course.html(), credits);
+				}
+
+			}
+		}
+	}
+}
+
+function checkOffRequiredCredit(course, credits) {
+	var children = $('#requiredCreditsList').children();
+	// starting at 1 because the first list element is the header
+	for (var i = 1; i < children.length; i++) {
+		var element = $(children[i]).children('.fulfilledBy');
+		var credit = $(children[i]).children('.credit').html();
+		// if the credit isn't fulfilled yet
+		if (element.html() == '' && credits.indexOf(credit) >= 0) {
+			// fulfill the credit
+			element.html(course);
+		}
+	}
 }

@@ -1,5 +1,5 @@
-// simple array of required classes
-var requiredCourses = [
+// simple array of required credits
+var requiredCredits = [
 	'MATH11',
 	'CHEM11',
 	'COEN10',
@@ -31,11 +31,7 @@ var requiredCourses = [
 	'COEN175',
 	'COEN195',
 	'COEN122',
-	'COEN196'
-];
-
-// simple array of required core
-var requiredCore = [
+	'COEN196',
 	'CTW1',
 	'CTW2',
 	'C&I1',
@@ -43,7 +39,6 @@ var requiredCore = [
 	'RTC1',
 	'RTC2',
 	'RTC3',
-	'DIVERSITY',
 	'DIVERSITY',
 	'ETHICS',
 	'SOCIAL_SCIENCE',
