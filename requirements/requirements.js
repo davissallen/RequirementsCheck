@@ -32,6 +32,9 @@ var requiredCredits = [
 	'COEN195',
 	'COEN122',
 	'COEN196',
+	'COEN ELECTIVE 1',
+	'COEN ELECTIVE 2',
+	'COEN ELECTIVE 3',
 	'CTW1',
 	'CTW2',
 	'C&I1',
@@ -47,5 +50,6 @@ var requiredCredits = [
 
 // object mapping core classes to the requirements they fulfill
 var courseCredits = {
-	'RSOC99': ['RTC2', 'ELSJ']
+	'RSOC99': ['RTC2', 'ELSJ'],
+	'COEN171': ['COEN171']
 };

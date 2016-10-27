@@ -11,8 +11,6 @@ var requirements;
 $(document).ready(function() {
 	// load the plan from cookies if it exists
 	plan = new Plan();
-	plan.years[0].fall.courses.push('MATH11');
-	plan.years[0].fall.courses.push('RSOC99');
 
 	// get the requirements object
 	requirements = getCoursesSimple();
@@ -42,8 +40,6 @@ function getCoursesSimple() {
 function drawInitialView() {
 	// draw plan view
 	for (var i = 0; i < plan.years.length; i++) {
-		var html = '<div id="year' + i + '" class="year"></div>';
-		$('#plan').append(html);
 		drawYear(i);
 	}
 
@@ -51,6 +47,16 @@ function drawInitialView() {
 	initRemoveCourseEvent();
 
 	// draw requirements view
+	drawRequirementsView();
+
+	// check off the requirements fulfilled
+	checkRequirements();
+
+}
+
+function drawRequirementsView() {
+	$('#requiredCreditsList').html('');
+
 	for (var i = 0; i < requirements.requiredCredits.length; i++) {
 		var html = '<li class="requirementsLI"><div class="credit">' +
 			requirements.requiredCredits[i] + '</div>' +
@@ -58,14 +64,13 @@ function drawInitialView() {
 
 		$('#requiredCreditsList').append(html);
 	}
-
-	// check off the requirements fulfilled
-	checkRequirements();
-	
 }
 
 // draw a whole year by drawing quarters
 function drawYear(index) {
+	var html = '<div id="year' + index + '" class="year"></div>';
+	$('#plan').append(html);
+
 	drawQuarter(QUARTER_ENUM.FALL, index);
 	drawQuarter(QUARTER_ENUM.WINTER, index);
 	drawQuarter(QUARTER_ENUM.SPRING, index);
@@ -78,7 +83,7 @@ function drawQuarter(quarter, year) {
 	var html = '<div id="year' + year + quarter + '" class="quarter">' +
 		'<div class="quarterHeader">' + sentenceCase(quarter) + '</div>' +
 		'<ul id="year' + year + quarter +'courselist" class="courselist">' +
-		createRemovableCourseList(plan.years[year][quarter].courses, quarter, year, 'course') +
+		createRemovableCourseList(plan.years[year][quarter].courses, 'course') +
 		'</ul>' +
 		'<div><div id="btnAddCourseToYear' + year + quarter + '" class="btnAddCourse">+</div></div>' +
 		'</div>';
@@ -88,6 +93,7 @@ function drawQuarter(quarter, year) {
 
 	// attach quarter and year data to each element for removal functionality
 	var courseElements = $('#year' + year + quarter + 'courselist > li');
+
 	for (var i = 0; i < courseElements.length; i++) {
 		// add year and quarter to corresponding dom element
 		jQuery.data(courseElements[i], 'year', year);
@@ -109,7 +115,7 @@ function sentenceCase(string) {
 }
 
 // loops through all classes in the specified quarter, generating list elements with removability
-function createRemovableCourseList(courses, quarter, year, htmlClass) {
+function createRemovableCourseList(courses, htmlClass) {
 	var resultHTML = '';
 	$.each(courses, function(index, course) {
 		resultHTML += '<li class="' + htmlClass + '">' +
@@ -121,7 +127,7 @@ function createRemovableCourseList(courses, quarter, year, htmlClass) {
 }
 
 // loops through all classes in the specified quarter, generating list elements
-function buildCourseList(courses, quarter, year, htmlClass) {
+function buildCourseList(courses, htmlClass) {
 	var resultHTML = '';
 	$.each(courses, function(index, course) {
 		resultHTML += '<li class="' + htmlClass + '">' + course + '</li>';
@@ -208,7 +214,17 @@ function bindInputHandler(quarter, year) {
 
 		// add class on enter key
 		if (e.which == 13) {
-			console.log('enter');
+			value = value.replace(/\s/g, "");
+			value = value.toUpperCase();
+
+			// if invalid input
+			if (value.search(/^[A-Z]{4}[0-9]{1,3}$/) < 0) {
+				alert('please enter a valid format such as coen12');
+				return;
+			}
+			
+			// addCourse
+			addCourse(quarter, year, value);
 		}
 
 		// on another key press, filter the dropdown
@@ -229,7 +245,7 @@ function filterCourses(substring) {
 
 // sets the html for the filtered list
 function createFilteredListItems(courses, quarter, year) {
-	var html = buildCourseList(courses, quarter, year, 'addCourse');
+	var html = buildCourseList(courses, 'addCourse');
 	$('#dropdownYear' + year + quarter).html(html);
 	// bind the onclick listeners for the list item
 	bindListItemClick(quarter, year);
@@ -262,6 +278,8 @@ function addCourse(quarter, year, course) {
 	});
 
 	// update sidebar requirements
+	drawRequirementsView();
+	checkRequirements();
 }
 
 // removes a course from the plan
@@ -278,13 +296,13 @@ function removeCourse(element) {
 	plan.removeCourse(course, quarter, year);
 
 	// update sidebar requirements
+	drawRequirementsView();
+	checkRequirements();
 }
 
 // adds a year to the plan and layout
 function addYear() {
 	var index = plan.years.length;
-	var html = '<div id="year' + index + '" class="year"></div>';
-	$('#plan').append(html);
 	plan.years.push(new Year());
 	drawYear(index);
 }
@@ -294,50 +312,99 @@ function removeYear() {
 	var index = plan.years.length - 1;
 	$('#year' + index).remove();
 	plan.years.pop();
+	
+	// update sidebar requirements
+	drawRequirementsView();
+	checkRequirements();
 }
 
 
 
 
-
+// loops through all classes in the schedule and checks off the sidebar requirements
 function checkRequirements() {
 	for (var i = 0; i < plan.years.length; i++) {
-
+		// grab the quarter objects
 		var quarters = $('#year' + i).children();
 
-
+		// loop through all quarters
 		for (var j = 0; j < quarters.length; j++) {
-
+			// grab all courses in the quarters object
 			var courses = $(quarters[j]).children('.courselist').children();
 
-
+			// loop through all courses
 			for (var k = 0; k < courses.length; k++) {
 
 				var course = $(courses[k]).children('.courseName');
 				var credits = requirements.courseCredits[course.html()];
-				if (credits === undefined || credits.length == 0) {
-					console.log(course.html() + ' can be used for educational enrichment');
-					course.parent().css('background-color', 'yellow');
+				
+				if (credits === undefined) {
+					// check for coen elective
+					checkCoenElective(course);
 				}
 				else {
-					checkOffRequiredCredit(course.html(), credits);
+					checkOffRequiredCredit(course, credits);
 				}
-
 			}
 		}
 	}
 }
 
+
 function checkOffRequiredCredit(course, credits) {
 	var children = $('#requiredCreditsList').children();
-	// starting at 1 because the first list element is the header
-	for (var i = 1; i < children.length; i++) {
+	var used = false;
+
+	for (var i = 0; i < children.length; i++) {
 		var element = $(children[i]).children('.fulfilledBy');
 		var credit = $(children[i]).children('.credit').html();
 		// if the credit isn't fulfilled yet
 		if (element.html() == '' && credits.indexOf(credit) >= 0) {
 			// fulfill the credit
-			element.html(course);
+			used = true;
+			element.html(course.html());
 		}
+
 	}
+
+	if (used) {
+		course.parent().css('background-color', 'white');
+	}
+	else {
+		course.parent().css('background-color', 'yellow');
+	}
+}
+
+
+function checkCoenElective(course) {
+	if (course.html().search(/^COEN[1-9]{1}[0-9]{2}$/) < 0) {
+		course.parent().css('background-color', 'yellow');
+		return;
+	}
+
+	// course is an upper div coen class, can be used as coen elective
+	var children = $('#requiredCreditsList').children();
+	var used = false;
+
+	for (var i = 0; i < children.length; i++) {
+		var element = $(children[i]).children('.fulfilledBy');
+		var credit = $(children[i]).children('.credit').html();
+		// if the credit is a coen elective
+		if (credit.indexOf('COEN ELECTIVE') >= 0) {
+			// check if the user is trying to retake a class for another coen elective
+			if (element.html() == course.html()) {
+				course.parent().css('background-color', 'yellow');
+				return;
+			}
+			else if (element.html() == '') {
+				// fulfill the credit
+				used = true;
+				element.html(course.html());
+				course.parent().css('background-color', 'white');
+				return;
+			}
+		}
+
+	}
+
 }
