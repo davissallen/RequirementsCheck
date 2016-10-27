@@ -202,6 +202,7 @@ function bindFocusHandler(quarter, year) {
 			(!target.is('#txtBoxYear' + year + quarter) && !target.is('.addCourse'))) {
 			$('#dropdownYear' + year + quarter).remove();
 			courseListVisible = false;
+			$('#txtBoxYear' + year + quarter).val('');
 		}
 	});
 }
