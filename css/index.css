@@ -1,3 +1,10 @@
+/***********
+
+light-gray hover: #dddddd;
+
+***********/
+
+
 /* Generic styling */
 ul {
 	text-align: left;
@@ -65,7 +72,7 @@ ul {
 }
 
 .btnYear:hover {
-	background-color: gray;
+	background-color: #dddddd;
 	cursor: pointer;
 }
 
@@ -94,7 +101,7 @@ ul {
 }
 
 .removeCourse:hover {
-	background-color: gray;
+	background-color: #dddddd;
 	cursor: pointer;
 }
 
@@ -108,16 +115,17 @@ ul {
 
 .addCourse:hover {
 	cursor: pointer;
+	background-color: #dddddd;
 }
 
 .btnAddCourse:hover {
-	background-color: gray;
+	background-color: #dddddd;
 	cursor: pointer;
 }
 
 .dropdown {
 	position: absolute;
-	z-index: 1;
+	z-index: 10;
 	background-color: white;
 	height: 50vh;
 	overflow-y: scroll;

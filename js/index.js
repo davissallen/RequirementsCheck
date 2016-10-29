@@ -13,7 +13,7 @@ $(document).ready(function() {
 	plan = new Plan();
 
 	// get the requirements object
-	requirements = getCoursesSimple();
+	requirements = getCourses();
 	// draw the initial view
 	drawInitialView();
 
@@ -29,7 +29,7 @@ $(document).ready(function() {
 });
 
 // get JSON object of requirements
-function getCoursesSimple() {
+function getCourses() {
 	return {
 		'requiredCredits': requiredCredits,
 		'courseCredits': courseCredits
@@ -54,23 +54,28 @@ function drawInitialView() {
 
 }
 
+// loops through all major requirements and draws the html list for it
 function drawRequirementsView() {
+	// clear the requiredlist
 	$('#requiredCreditsList').html('');
-
+	// loop through requirements, making li tag for each requirement
 	for (var i = 0; i < requirements.requiredCredits.length; i++) {
 		var html = '<li class="requirementsLI"><div class="credit">' +
 			requirements.requiredCredits[i] + '</div>' +
 			'<div class="fulfilledBy"></div></li>';
 
+		// add the newly created tag to the list
 		$('#requiredCreditsList').append(html);
 	}
 }
 
 // draw a whole year by drawing quarters
 function drawYear(index) {
+	// add the year to the plan
 	var html = '<div id="year' + index + '" class="year"></div>';
 	$('#plan').append(html);
 
+	// draw each quarter in the year
 	drawQuarter(QUARTER_ENUM.FALL, index);
 	drawQuarter(QUARTER_ENUM.WINTER, index);
 	drawQuarter(QUARTER_ENUM.SPRING, index);
@@ -101,10 +106,12 @@ function drawQuarter(quarter, year) {
 	}
 
 	// set the on click listener for adding a course
-	$('#btnAddCourseToYear' + year + quarter).click(addCourseBtnEvent(quarter, year));
+	$('#btnAddCourseToYear' + year + quarter).click(function() {
+		addCourseBtnEvent(quarter, year);
+	});
 }
 
-// capitalize the first character of the string
+// capitalizes the first character of the string and returns it
 function sentenceCase(string) {
 	// return empty string if the string is null or empty
 	if (string == null || string.length < 1) {
@@ -145,50 +152,83 @@ function initRemoveCourseEvent() {
 
 // function to fire when the add course button is pressed
 function addCourseBtnEvent(quarter, year) {
-	// toggle variable
-	var txtBoxToggle = false;
-	// function closure to protect the toggle variable
-	return function() {
-		// textbox not visible, add it, and update the variable
-		if (!txtBoxToggle) {
-			var html = '<div class="searchClass">' +
-			'<input id="txtBoxYear' + year + quarter +
-			'" type="text" size="5" placeholder="course"></div>';
-			$(html).insertAfter('#year' + year + quarter +'courselist');
 
-			// change the '+' to '-' and set the toggle
-			$('#btnAddCourseToYear' + year + quarter).html('-');
-			txtBoxToggle = true;
-
-			// bind focus handler for when user enters or exists scope
-			bindFocusHandler(quarter, year);
-			// bind input handler for when user searches for classes
-			bindInputHandler(quarter, year);
-		}
-		else {
-			$('#year' + year + quarter).children('.searchClass').remove();
-			$('#btnAddCourseToYear' + year + quarter).html('+');
-			txtBoxToggle = false;
-		}
+	var txtBoxVisible = false;
+	if ($('#year' + year + quarter).has('.searchClass').length) {
+		txtBoxVisible = true;
 	}
+
+	// textbox not visible, add it
+	if (!txtBoxVisible) {
+		var html = '<div class="searchClass">' +
+		'<input id="txtBoxYear' + year + quarter +
+		'" type="text" size="5" placeholder="course"></div>';
+		$(html).insertAfter('#year' + year + quarter +'courselist');
+
+		// change the '+' to '-' and set the toggle
+		$('#btnAddCourseToYear' + year + quarter).html('-');
+
+		// bind focus handler for when user enters or exists scope
+		bindFocusHandler(quarter, year);
+		// bind input handler for when user searches for classes
+		bindInputHandler(quarter, year);
+
+		// set the focus into the textbox
+		$('#txtBoxYear' + year + quarter).focus();
+
+	}
+	else {
+		$('#year' + year + quarter).children('.searchClass').remove();
+		$('#btnAddCourseToYear' + year + quarter).html('+');
+	}
+
+
+	// // toggle variable
+	// var txtBoxToggle;
+	// // function closure to protect the toggle variable
+	// return function() {
+	// 	if ($('#year' + year + quarter).has('.searchClass').length) {
+	// 		txtBoxToggle = true;
+	// 	}
+	// 	else {
+	// 		txtBoxToggle = false;
+	// 	}
+
+	// 	// textbox not visible, add it, and update the variable
+	// 	if (!txtBoxToggle) {
+	// 		var html = '<div class="searchClass">' +
+	// 		'<input id="txtBoxYear' + year + quarter +
+	// 		'" type="text" size="5" placeholder="course"></div>';
+	// 		$(html).insertAfter('#year' + year + quarter +'courselist');
+
+	// 		// change the '+' to '-' and set the toggle
+	// 		$('#btnAddCourseToYear' + year + quarter).html('-');
+	// 		txtBoxToggle = true;
+
+	// 		// bind focus handler for when user enters or exists scope
+	// 		bindFocusHandler(quarter, year);
+	// 		// bind input handler for when user searches for classes
+	// 		bindInputHandler(quarter, year);
+
+	// 		// set the focus into the textbox
+	// 		$('#txtBoxYear' + year + quarter).trigger('focusin');
+	// 	}
+	// 	else {
+	// 		$('#year' + year + quarter).children('.searchClass').remove();
+	// 		$('#btnAddCourseToYear' + year + quarter).html('+');
+	// 		txtBoxToggle = false;
+	// 	}
+	// }
 }
 
 // binds the focus handler of the textBox and List of classes
 function bindFocusHandler(quarter, year) {
 	var courseListVisible = false;
 	// when user clicks on the textbox
-	$('#txtBoxYear' + year + quarter).focusin(function() {
-		// list may potentially be there, remove it
-		$('#dropdownYear' + year + quarter).remove();
-		// add the list of classes
-		var html = '<ul id="dropdownYear' + year + quarter + '" class="dropdown"></ul>';
-		$(html).insertAfter('#txtBoxYear' + year + quarter);
-
-		// get the user input and update the dropdown list
-		var value = $('#txtBoxYear' + year + quarter).val();
-		var filteredClasses = filterCourses(value);
-		// update the dropdown
-		createFilteredListItems(filteredClasses, quarter, year);
+	$('#txtBoxYear' + year + quarter).focus(function() {
+		console.log('focus in');
+		// draw course drop down list
+		drawCourseDropDown(quarter, year);
 
 		courseListVisible = true;
 
@@ -198,8 +238,11 @@ function bindFocusHandler(quarter, year) {
 	$('html').click(function(e) {
 		var target = $(e.target);
 		// remove the dropdown list if it's visible and the user clicks out of the seach scope
-		if (courseListVisible &&
-			(!target.is('#txtBoxYear' + year + quarter) && !target.is('.addCourse'))) {
+		if (courseListVisible && !target.is('#txtBoxYear' + year + quarter) &&
+				!target.is('#dropdownYear' + year + quarter) &&
+				!target.is('#year' + year + quarter + ' > div > .btnAddCourse')) {
+
+			console.log('focus out');
 			$('#dropdownYear' + year + quarter).remove();
 			courseListVisible = false;
 			$('#txtBoxYear' + year + quarter).val('');
@@ -212,6 +255,7 @@ function bindInputHandler(quarter, year) {
 	// on key up event, filter the class list
 	$('#txtBoxYear' + year + quarter).keypress(function(e) {
 		var value = $('#txtBoxYear' + year + quarter).val();
+		console.log(value);
 
 		// add class on enter key
 		if (e.which == 13) {
@@ -226,6 +270,7 @@ function bindInputHandler(quarter, year) {
 			
 			// addCourse
 			addCourse(quarter, year, value);
+			return;
 		}
 
 		// on another key press, filter the dropdown
@@ -233,6 +278,22 @@ function bindInputHandler(quarter, year) {
 		// filter the class list
 		createFilteredListItems(filteredClasses, quarter, year);
 	});
+}
+
+// draws the html dropdown with filtered classes
+function drawCourseDropDown(quarter, year) {
+	// list may potentially be there, remove it
+	$('#dropdownYear' + year + quarter).remove();
+	// add the list of classes
+	var html = '<ul id="dropdownYear' + year + quarter + '" class="dropdown"></ul>';
+	$(html).insertAfter('#txtBoxYear' + year + quarter);
+
+	// get the user input and update the dropdown list
+	var value = $('#txtBoxYear' + year + quarter).val();
+	var filteredCourses = filterCourses(value);
+
+	// update the dropdown
+	createFilteredListItems(filteredCourses, quarter, year);
 }
 
 function filterCourses(substring) {
@@ -281,6 +342,10 @@ function addCourse(quarter, year, course) {
 	// update sidebar requirements
 	drawRequirementsView();
 	checkRequirements();
+
+	// remove search class element
+	$('#year' + year + quarter).children('.searchClass').remove();
+	$('#btnAddCourseToYear' + year + quarter).html('+');
 }
 
 // removes a course from the plan
