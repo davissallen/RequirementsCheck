@@ -324,34 +324,23 @@ function removeYear() {
 
 // loops through all classes in the schedule and checks off the sidebar requirements
 function checkRequirements() {
-	for (var i = 0; i < plan.years.length; i++) {
-		// grab the quarter objects
-		var quarters = $('#year' + i).children();
 
-		// loop through all quarters
-		for (var j = 0; j < quarters.length; j++) {
-			// grab all courses in the quarters object
-			var courses = $(quarters[j]).children('.courselist').children();
-
-			// loop through all courses
-			for (var k = 0; k < courses.length; k++) {
-
-				var course = $(courses[k]).children('.courseName');
-				var credits = requirements.courseCredits[course.html()];
-				
-				if (credits === undefined) {
-					// check for coen elective
-					checkCoenElective(course);
-				}
-				else {
-					checkOffRequiredCredit(course, credits);
-				}
-			}
+	$('.courseName').each(function(index) {
+		var credits = requirements.courseCredits[$(this).html()];
+		if (credits === undefined) {
+			// check for coen elective
+			checkCoenElective($(this));
 		}
-	}
+		else {
+			checkOffRequiredCredit($(this), credits);
+		}
+	
+	});
+
 }
 
-
+// loop through the requirements, checking them off if that requirement
+// is unsatisfied
 function checkOffRequiredCredit(course, credits) {
 	var children = $('#requiredCreditsList').children();
 	var used = false;
@@ -376,8 +365,9 @@ function checkOffRequiredCredit(course, credits) {
 	}
 }
 
-
+// see if the course is eligible to be used for a coen elective
 function checkCoenElective(course) {
+	// make sure the course is an upper div coen course
 	if (course.html().search(/^COEN[1-9]{1}[0-9]{2}$/) < 0) {
 		course.parent().css('background-color', 'yellow');
 		return;
