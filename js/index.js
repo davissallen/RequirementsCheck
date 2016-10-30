@@ -7,10 +7,21 @@
 var plan;
 var requirements;
 
+function getPlanFromCookie() {
+	plan = document.cookie('plan');
+	if (plan == null) {
+		plan = new Plan();
+	}
+}
+
+function setPlanInCookie() {
+	$.cookie('plan', JSON.stringify(plan));
+}
+
 // on initial load
 $(document).ready(function() {
 	// load the plan from cookies if it exists
-	plan = new Plan();
+	getPlanFromCookie();
 
 	// get the requirements object
 	requirements = getCourses();
@@ -26,6 +37,12 @@ $(document).ready(function() {
 	$('#btnRemoveYear').click(function() {
 		removeYear();
 	});
+});
+
+// when the web page gets closed, save the plan object
+$(window).unload(function() {
+	// save plan as cookie set expiration 1 year from now
+	setPlanInCookie();
 });
 
 // get JSON object of requirements
@@ -226,7 +243,6 @@ function bindFocusHandler(quarter, year) {
 	var courseListVisible = false;
 	// when user clicks on the textbox
 	$('#txtBoxYear' + year + quarter).focus(function() {
-		console.log('focus in');
 		// draw course drop down list
 		drawCourseDropDown(quarter, year);
 
@@ -242,7 +258,6 @@ function bindFocusHandler(quarter, year) {
 				!target.is('#dropdownYear' + year + quarter) &&
 				!target.is('#year' + year + quarter + ' > div > .btnAddCourse')) {
 
-			console.log('focus out');
 			$('#dropdownYear' + year + quarter).remove();
 			courseListVisible = false;
 			$('#txtBoxYear' + year + quarter).val('');
@@ -423,7 +438,7 @@ function checkOffRequiredCredit(course, credits) {
 	}
 
 	if (used) {
-		course.parent().css('background-color', 'white');
+		course.parent().css('background-color', 'inherit');
 	}
 	else {
 		course.parent().css('background-color', 'yellow');
@@ -456,7 +471,7 @@ function checkCoenElective(course) {
 				// fulfill the credit
 				used = true;
 				element.html(course.html());
-				course.parent().css('background-color', 'white');
+				course.parent().css('background-color', 'inherit');
 				return;
 			}
 		}

@@ -6,6 +6,18 @@ light-gray hover: #dddddd;
 
 
 /* Generic styling */
+html {
+	font-family: helvetica;
+}
+
+body {
+	background-color: #fff8dc;
+}
+
+h1 {
+	text-align: center;
+}
+
 ul {
 	text-align: left;
 	list-style: none;
@@ -27,6 +39,7 @@ ul {
 .requirementsHeader {
 	width: 45%;
 	display: inline-block;
+	font-size: 1.2em;
 }
 
 #creditHeader {
@@ -87,6 +100,10 @@ ul {
 .quarter {
 	display: table-cell;
 	padding: 10px;
+}
+
+.quarterHeader {
+	font-size: 1.2em;
 }
 
 .removeCourse, .courseName {
