@@ -10,11 +10,14 @@ var requirements;
 function getPlanFromCookie() {
 	// get the plan from browser storage
 	plan = JSON.parse(localStorage.getItem('plan'));
-	// create a Plan object from the parse JSON
-	plan = new Plan(plan);
+	
 	if (plan == null) {
 		console.log('plan is null');
 		plan = new Plan();
+	}
+	else {
+		// create a Plan object from the parse JSON
+		plan = new Plan(plan);
 	}
 }
 
