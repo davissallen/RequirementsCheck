@@ -47,7 +47,7 @@ $(window).bind('beforeunload', function() {
 // get JSON object of requirements
 function getCourses() {
 	return {
-		'requiredCredits': requiredCredits,
+		'requiredCredits': requiredCredits.sort(),
 		'courseCredits': courseCredits
 	};
 }

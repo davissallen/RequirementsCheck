@@ -21,17 +21,19 @@ var Year = function() {
 
 // Plan object holding an array of years, users can
 // choose to add extra years to their SCU carears
-var Plan = function() {
-	this.years = [
-		new Year(),
-		new Year(),
-		new Year(),
-		new Year()
-	];
-}
+// var Plan = function() {
+// 	this.years = [
+// 		new Year(),
+// 		new Year(),
+// 		new Year(),
+// 		new Year()
+// 	];
+// }
 
 var Plan = function(obj) {
-	if (obj === undefined || obj == null) {
+	if (obj === undefined || obj == null ||
+		obj.years === undefined || obj.years == null) {
+		
 		this.years = [
 			new Year(),
 			new Year(),
