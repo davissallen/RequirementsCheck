@@ -31,7 +31,17 @@ var Plan = function() {
 }
 
 var Plan = function(obj) {
-	this.years = obj.years;
+	if (obj === undefined || obj == null) {
+		this.years = [
+			new Year(),
+			new Year(),
+			new Year(),
+			new Year()
+		];
+	}
+	else {
+		this.years = obj.years;
+	}
 }
 
 Plan.prototype.removeCourse = function(course, quarter, year) {
