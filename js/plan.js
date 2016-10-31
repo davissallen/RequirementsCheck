@@ -30,6 +30,10 @@ var Plan = function() {
 	];
 }
 
+var Plan = function(obj) {
+	this.years = obj.years;
+}
+
 Plan.prototype.removeCourse = function(course, quarter, year) {
 	var index = this.years[year][quarter].courses.indexOf(course);
 	if (index > -1) {

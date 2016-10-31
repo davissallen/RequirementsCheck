@@ -8,14 +8,18 @@ var plan;
 var requirements;
 
 function getPlanFromCookie() {
-	plan = document.cookie('plan');
+	// get the plan from browser storage
+	plan = JSON.parse(localStorage.getItem('plan'));
+	// create a Plan object from the parse JSON
+	plan = new Plan(plan);
 	if (plan == null) {
+		console.log('plan is null');
 		plan = new Plan();
 	}
 }
 
 function setPlanInCookie() {
-	$.cookie('plan', JSON.stringify(plan));
+	localStorage.setItem('plan', JSON.stringify(plan));
 }
 
 // on initial load
@@ -40,8 +44,7 @@ $(document).ready(function() {
 });
 
 // when the web page gets closed, save the plan object
-$(window).unload(function() {
-	// save plan as cookie set expiration 1 year from now
+$(window).bind('beforeunload', function() {
 	setPlanInCookie();
 });
 
@@ -268,9 +271,8 @@ function bindFocusHandler(quarter, year) {
 // filter the class list with the input
 function bindInputHandler(quarter, year) {
 	// on key up event, filter the class list
-	$('#txtBoxYear' + year + quarter).keypress(function(e) {
+	$('#txtBoxYear' + year + quarter).keyup(function(e) {
 		var value = $('#txtBoxYear' + year + quarter).val();
-		console.log(value);
 
 		// add class on enter key
 		if (e.which == 13) {
@@ -278,7 +280,7 @@ function bindInputHandler(quarter, year) {
 			value = value.toUpperCase();
 
 			// if invalid input
-			if (value.search(/^[A-Z]{4}[0-9]{1,3}$/) < 0) {
+			if (value.search(/^[A-Z]{3,4}[0-9]{1,3}[AB]?$/) < 0) {
 				alert('please enter a valid format such as coen12');
 				return;
 			}
@@ -476,6 +478,10 @@ function checkCoenElective(course) {
 			}
 		}
 
+	}
+
+	if (!used) {
+		course.parent().css('background-color', 'yellow');	
 	}
 
 }
