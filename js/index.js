@@ -7,6 +7,10 @@
 var plan;
 var requirements;
 
+// color coding
+var colorDuplicateCourse = '#ff6060';
+var colorUnecessaryCourse = 'yellow';
+
 function getPlanFromCookie() {
 	// get the plan from browser storage
 	var storedPlan = JSON.parse(localStorage.getItem('plan'));
@@ -402,15 +406,21 @@ function removeYear() {
 
 // loops through all classes in the schedule and checks off the sidebar requirements
 function checkRequirements() {
-
+	var distinctCourses = [];
 	$('.courseName').each(function(index) {
-		var credits = requirements.courseCredits[$(this).html()];
-		if (credits === undefined) {
-			// check for coen elective
-			checkCoenElective($(this));
+		if (distinctCourses.indexOf($(this).html()) >= 0) {
+			$(this).parent().css('background-color', colorDuplicateCourse);
 		}
 		else {
-			checkOffRequiredCredit($(this), credits);
+			distinctCourses.push($(this).html());
+			var credits = requirements.courseCredits[$(this).html()];
+			if (credits === undefined) {
+				// check for coen elective
+				checkCoenElective($(this));
+			}
+			else {
+				checkOffRequiredCredit($(this), credits);
+			}
 		}
 	
 	});
@@ -426,6 +436,7 @@ function checkOffRequiredCredit(course, credits) {
 	for (var i = 0; i < children.length; i++) {
 		var element = $(children[i]).children('.fulfilledBy');
 		var credit = $(children[i]).children('.credit').html();
+
 		// if the credit isn't fulfilled yet
 		if (element.html() == '' && credits.indexOf(credit) >= 0) {
 			// fulfill the credit
@@ -439,7 +450,7 @@ function checkOffRequiredCredit(course, credits) {
 		course.parent().css('background-color', 'inherit');
 	}
 	else {
-		course.parent().css('background-color', 'yellow');
+		course.parent().css('background-color', colorUnecessaryCourse);
 	}
 }
 
@@ -447,7 +458,7 @@ function checkOffRequiredCredit(course, credits) {
 function checkCoenElective(course) {
 	// make sure the course is an upper div coen course
 	if (course.html().search(/^COEN[1-9]{1}[0-9]{2}$/) < 0) {
-		course.parent().css('background-color', 'yellow');
+		course.parent().css('background-color', colorUnecessaryCourse);
 		return;
 	}
 
@@ -458,26 +469,20 @@ function checkCoenElective(course) {
 	for (var i = 0; i < children.length; i++) {
 		var element = $(children[i]).children('.fulfilledBy');
 		var credit = $(children[i]).children('.credit').html();
-		// if the credit is a coen elective
-		if (credit.indexOf('COEN ELECTIVE') >= 0) {
-			// check if the user is trying to retake a class for another coen elective
-			if (element.html() == course.html()) {
-				course.parent().css('background-color', 'yellow');
-				return;
-			}
-			else if (element.html() == '') {
-				// fulfill the credit
-				used = true;
-				element.html(course.html());
-				course.parent().css('background-color', 'inherit');
-				return;
-			}
+
+		// if the credit is a coen elective and can fulfill a coen elective req.
+		if (credit.indexOf('COEN ELECTIVE') >= 0 && element.html() == '') {
+			// fulfill the credit
+			used = true;
+			element.html(course.html());
+			course.parent().css('background-color', 'inherit');
+			return;
 		}
 
 	}
 
 	if (!used) {
-		course.parent().css('background-color', 'yellow');	
+		course.parent().css('background-color', colorUnecessaryCourse);	
 	}
 
 }

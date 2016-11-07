@@ -28,6 +28,11 @@ h1 {
 	font-size: 1.7em;
 }
 
+#duplicate {
+	color: #ff6060;
+	font-size: 1.7em;
+}
+
 ul {
 	text-align: left;
 	list-style: none;
