@@ -40,6 +40,10 @@ ul {
 	display: inline-block;
 }
 
+.courselist {
+	min-width: 120px;
+}
+
 #content {
 	width: 60%;
 	float: left;
@@ -94,7 +98,7 @@ ul {
 .btnYear {
 	display: inline-block;
 	border-radius: 4px;
-	padding: 0 4px;
+	padding: 20px 40px;
 	margin-left: 20px;
 	margin-top: 20px;
 	border: 1px solid gray;
@@ -105,12 +109,18 @@ ul {
 	cursor: pointer;
 }
 
+#yearButtons {
+	text-align: center;
+}
+
 /* plan styling */
 .year {
 	display: table;
 	width: 100%;
-	text-align: center;
-	margin-left: 10px;
+	height: 100%;
+	text-align: left;
+	margin-left: 20px;
+	padding-bottom: 20px;
 }
 
 .quarter {
@@ -120,6 +130,7 @@ ul {
 
 .quarterHeader {
 	font-size: 1.2em;
+	font-weight: bold;
 }
 
 .removeCourse, .courseName {

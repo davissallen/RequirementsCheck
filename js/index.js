@@ -113,7 +113,7 @@ function drawQuarter(quarter, year) {
 		'<ul id="year' + year + quarter +'courselist" class="courselist">' +
 		createRemovableCourseList(plan.years[year][quarter].courses, 'course') +
 		'</ul>' +
-		'<div><div id="btnAddCourseToYear' + year + quarter + '" class="btnAddCourse">+</div></div>' +
+		'<div style="margin-left: 40px"><div id="btnAddCourseToYear' + year + quarter + '" class="btnAddCourse">+</div></div>' +
 		'</div>';
 
 	// add the drawn quarter to the corresponding year
