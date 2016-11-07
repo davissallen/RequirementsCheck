@@ -66,6 +66,9 @@ function drawInitialView() {
 	// initialize remove course event
 	initRemoveCourseEvent();
 
+	// initialize edit course event
+	initEditCourseEvent();
+
 	// draw requirements view
 	drawRequirementsView();
 
@@ -167,7 +170,26 @@ function buildCourseList(courses, htmlClass) {
 function initRemoveCourseEvent() {
 	$('.removeCourse').click(function() {
 		removeCourse($(this));
-	});	
+	});
+}
+
+function initEditCourseEvent() {
+	$('.courseName').dblclick(function() {
+		editCourse($(this));
+	});
+}
+
+function editCourse(element) {
+	var courseName = element.html();
+
+	var year = jQuery.data(element.parent()[0], 'year');
+	var quarter = jQuery.data(element.parent()[0], 'quarter');
+
+	var removeElement = element.parent().children('.removeCourse');
+	removeCourse(removeElement);
+
+	addCourseBtnEvent(quarter, year);
+	$('#txtBoxYear' + year + quarter).val(courseName);
 }
 
 // function to fire when the add course button is pressed
@@ -351,9 +373,17 @@ function addCourse(quarter, year, course) {
 		jQuery.data(courseElements[i], 'year', year);
 		jQuery.data(courseElements[i], 'quarter', quarter);
 	}
+	
+	// bind quarter-wide remove event
 	$('#year' + year + quarter + 'courselist > li > .removeCourse').unbind('click');
 	$('#year' + year + quarter + 'courselist > li > .removeCourse').click(function() {
 		removeCourse($(this));
+	});
+
+	// bind quarter-wide edit event
+	$('#year' + year + quarter + 'courselist > li > .courseName').unbind('dblclick');
+	$('#year' + year + quarter + 'courselist > li > .courseName').dblclick(function() {
+		editCourse($(this));
 	});
 
 	// update sidebar requirements

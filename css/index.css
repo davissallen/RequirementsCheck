@@ -138,6 +138,10 @@ ul {
 	cursor: pointer;
 }
 
+.courseName:hover {
+	cursor: pointer;
+}
+
 .btnAddCourse {
 	font-weight: bolder;
 	font-size: 1em;
