@@ -273,10 +273,10 @@ function bindInputHandler(quarter, year) {
 	// on key up event, filter the class list
 	$('#txtBoxYear' + year + quarter).keyup(function(e) {
 		var value = $('#txtBoxYear' + year + quarter).val();
+		value = value.replace(/\s/g, "");
 
 		// add class on enter key
 		if (e.which == 13) {
-			value = value.replace(/\s/g, "");
 			value = value.toUpperCase();
 
 			// if invalid input
