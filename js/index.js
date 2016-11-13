@@ -223,44 +223,6 @@ function addCourseBtnEvent(quarter, year) {
 		$('#year' + year + quarter).children('.searchClass').remove();
 		$('#btnAddCourseToYear' + year + quarter).html('+');
 	}
-
-
-	// // toggle variable
-	// var txtBoxToggle;
-	// // function closure to protect the toggle variable
-	// return function() {
-	// 	if ($('#year' + year + quarter).has('.searchClass').length) {
-	// 		txtBoxToggle = true;
-	// 	}
-	// 	else {
-	// 		txtBoxToggle = false;
-	// 	}
-
-	// 	// textbox not visible, add it, and update the variable
-	// 	if (!txtBoxToggle) {
-	// 		var html = '<div class="searchClass">' +
-	// 		'<input id="txtBoxYear' + year + quarter +
-	// 		'" type="text" size="5" placeholder="course"></div>';
-	// 		$(html).insertAfter('#year' + year + quarter +'courselist');
-
-	// 		// change the '+' to '-' and set the toggle
-	// 		$('#btnAddCourseToYear' + year + quarter).html('-');
-	// 		txtBoxToggle = true;
-
-	// 		// bind focus handler for when user enters or exists scope
-	// 		bindFocusHandler(quarter, year);
-	// 		// bind input handler for when user searches for classes
-	// 		bindInputHandler(quarter, year);
-
-	// 		// set the focus into the textbox
-	// 		$('#txtBoxYear' + year + quarter).trigger('focusin');
-	// 	}
-	// 	else {
-	// 		$('#year' + year + quarter).children('.searchClass').remove();
-	// 		$('#btnAddCourseToYear' + year + quarter).html('+');
-	// 		txtBoxToggle = false;
-	// 	}
-	// }
 }
 
 // binds the focus handler of the textBox and List of classes
@@ -283,9 +245,14 @@ function bindFocusHandler(quarter, year) {
 				!target.is('#dropdownYear' + year + quarter) &&
 				!target.is('#year' + year + quarter + ' > div > .btnAddCourse')) {
 
-			$('#dropdownYear' + year + quarter).remove();
+			// $('#dropdownYear' + year + quarter).remove();
+			// $('#txtBoxYear' + year + quarter).val('');
+			
 			courseListVisible = false;
-			$('#txtBoxYear' + year + quarter).val('');
+
+			// remove search class element
+			$('#year' + year + quarter).children('.searchClass').remove();
+			$('#btnAddCourseToYear' + year + quarter).html('+');
 		}
 	});
 }
